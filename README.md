@@ -3,10 +3,15 @@
 ## 1. 先安装Openvz内核
 
 cd /etc/yum.repos.d
+
 wget http://download.openvz.org/openvz.repo
+
 rpm --import http://download.openvz.org/RPM-GPG-Key-OpenVZ
+
 yum update -y
+
 yum install vzkernel
+
 yum install vzctl vzquota
 
 
@@ -15,12 +20,14 @@ yum install vzctl vzquota
 vi /etc/sysctl.conf
 修改以下两项设置转发
 net.ipv4.ip_forward = 1
+
 kernel.sysrq = 1
 
 
 ## 3. 使上面的配置文件生效
 
 modprobe bridge
+
 lsmod|grep bridge
 
 
@@ -46,6 +53,7 @@ wget https://potala2008.github.io/owp/installer/ai.sh && sh ai.sh
 ## 7. NAT
 
 vi /etc/modprobe.d/openvz.conf
+
 options nf_conntrack ip_conntrack_disable_ve0=0
 
 reboot
@@ -60,6 +68,8 @@ service iptables stop
 如果没有的话，请打开/etc/sysctl.conf的支持，并使用sysctl -p生效：
 引用
 net.ipv4.ip_forward = 1
+
 -----------------------------------
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
 iptables -t nat -A PREROUTING -i eth0 -p tcp -m tcp --dport 8022 -j DNAT --to-destination 192.168.100.112:22
