@@ -1,57 +1,65 @@
 # OpenVZ Web Panel
 
-[![Build Status](https://secure.travis-ci.org/sibprogrammer/owp.png?branch=master)](http://travis-ci.org/sibprogrammer/owp) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/sibprogrammer/owp)
+## 1. 先安装Openvz内核
 
-Copyright (c) 2008-2015 SoftUnity, Alexei Yuzhakov <sibprogrammer@gmail.com>
-
-Table of contents:
-
-1. License
-2. Description
-3. Features
-4. Installation
-5. Usage
-6. Additional information
+cd /etc/yum.repos.d
+wget http://download.openvz.org/openvz.repo
+rpm --import http://download.openvz.org/RPM-GPG-Key-OpenVZ
+yum update -y
+yum install vzkernel
+yum install vzctl vzquota
 
 
-## 1. License
+## 2. 修改/etc/sysctl.conf
 
-This software is licensed under the terms of the GPL 2.0 license. 
-Additional information can be found in LICENSE file.
-
-
-## 2. Description
-
-OpenVZ Web Panel is a GUI web-based frontend for controlling of the physical 
-and virtual servers with the OpenVZ virtualization technology.
-
-![OpenVZ Web Panel](https://raw.githubusercontent.com/sibprogrammer/owp-site/master/images/promo.png)
+vi /etc/sysctl.conf
+修改以下两项设置转发
+net.ipv4.ip_forward = 1
+kernel.sysrq = 1
 
 
-## 3. Features
+## 3. 使上面的配置文件生效
 
-* Web-based control of OpenVZ containers
-* Ability to control several physical servers
-* Separate physical server daemon (ability to set up panel inside VE)
-* Pretty interface
-* Multilanguage support
+modprobe bridge
+lsmod|grep bridge
 
 
-## 4. Installation
+## 4. 重启
 
-See INSTALL file for installation instructions.
-
-
-## 5. Usage
-
-By default you can visit http://your-host-or-ip:3000 to see the web panel. Login 
-page should be shown.  
-Default administrator's login and password are: admin/admin. Do not forget to
-change default password after the first login (using "My Profile" link).
+reboot
 
 
-## 6. Additional information
+## 5. 完成Openvz安装
 
-Additional information can be found on the project's website:
-http://owp.softunity.com.ru/
+检查开机是否设置为启动
+chkconfig --list vz
+启动检查openvz是否启动
+service vz status
+如果没自动启动执行，默认情况下会开机自动启动
+service vz start
 
+
+## 6. OpenVZ Web Panel
+
+wget https://potala2008.github.io/owp/installer/ai.sh && sh ai.sh
+
+## 7. NAT
+
+vi /etc/modprobe.d/openvz.conf
+options nf_conntrack ip_conntrack_disable_ve0=0
+
+reboot
+
+iptables -L -n -t nat
+
+## 8. NAT
+检测
+cat /proc/sys/net/ipv4/ip_forward
+1
+service iptables stop
+如果没有的话，请打开/etc/sysctl.conf的支持，并使用sysctl -p生效：
+引用
+net.ipv4.ip_forward = 1
+-----------------------------------
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -t nat -A PREROUTING -i eth0 -p tcp -m tcp --dport 8022 -j DNAT --to-destination 192.168.100.112:22
