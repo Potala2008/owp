@@ -62,11 +62,14 @@ iptables -L -n -t nat
 
 ## 8. NAT
 检测
+
 cat /proc/sys/net/ipv4/ip_forward
+
 1
 service iptables stop
+
 如果没有的话，请打开/etc/sysctl.conf的支持，并使用sysctl -p生效：
-引用
+
 net.ipv4.ip_forward = 1
 
 -----------------------------------
