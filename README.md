@@ -78,8 +78,19 @@ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 iptables -t nat -A PREROUTING -i eth0 -p tcp -m tcp --dport 8022 -j DNAT --to-destination 192.168.100.112:22
 
 ## 9. 禁止显示在路由追踪 OpenVZ 母机 IP 
+
 iptables -A OUTPUT -p icmp  --icmp-type 0 -j DROP
+
 iptables -A OUTPUT -p icmp  --icmp-type 8 -j DROP
+
 iptables -A OUTPUT -p icmp  --icmp-type 11 -j DROP
+
 iptables -A OUTPUT -p icmp  --icmp-type 30 -j DROP
+
 造成的后果是母机无法向外 ICMP 以及接受外部 ICMP，也就是 PING 不出去也 PING 不进来，但是 VPS 却不受影响
+
+vi /etc/vz/vz.conf
+
+#VE_LAYOUT=ploop
+
+VE_LAYOUT=simfs
