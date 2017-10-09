@@ -73,6 +73,8 @@ service iptables stop
 net.ipv4.ip_forward = 1
 
 -----------------------------------
+iptables -F -t nat
+
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
 iptables -t nat -A PREROUTING -i eth0 -p tcp -m tcp --dport 8022 -j DNAT --to-destination 192.168.100.112:22
